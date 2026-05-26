@@ -1,0 +1,1541 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Load Cell Analysis System</title>
+    <style>
+      @import url("https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap");
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+      html {
+        scroll-behavior: smooth;
+      }
+      :root {
+        --amber: #e8a020;
+        --amber-d: #c47a0a;
+        --amber-l: #f5c842;
+        --amber-dim: rgba(232, 160, 32, 0.12);
+        --amber-mid: rgba(232, 160, 32, 0.25);
+        --green: #22c97a;
+        --green-d: #16a05a;
+        --green-dim: rgba(34, 201, 122, 0.12);
+        --red: #ef5350;
+        --red-dim: rgba(239, 83, 80, 0.12);
+        --cyan: #38bdf8;
+        --purple: #a78bfa;
+        --bg0: #09090c;
+        --bg1: #0f0f14;
+        --bg2: #141419;
+        --bg3: #1a1a22;
+        --bg4: #21212d;
+        --border: rgba(255, 255, 255, 0.07);
+        --border-hi: rgba(255, 255, 255, 0.14);
+        --text-primary: #e8e8ec;
+        --text-secondary: #8888a0;
+        --text-muted: #55556a;
+        --font-mono: "JetBrains Mono", monospace;
+        --font-sans: "DM Sans", sans-serif;
+        --r-sm: 6px;
+        --r-md: 12px;
+        --r-lg: 18px;
+        --r-xl: 24px;
+      }
+      body {
+        font-family: var(--font-sans);
+        background: var(--bg0);
+        color: var(--text-primary);
+        min-height: 100vh;
+        padding: 24px 28px;
+        overflow-x: hidden;
+      }
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background: repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 2px,
+          rgba(0, 0, 0, 0.05) 2px,
+          rgba(0, 0, 0, 0.05) 4px
+        );
+        pointer-events: none;
+        z-index: 9999;
+      }
+      .container {
+        max-width: 1440px;
+        margin: auto;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .topbar {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 20px;
+        flex-wrap: wrap;
+        padding-bottom: 20px;
+        border-bottom: 1px solid var(--border);
+      }
+      .brand-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.18em;
+        color: var(--amber);
+        text-transform: uppercase;
+        margin-bottom: 4px;
+      }
+      .brand-title {
+        font-family: var(--font-mono);
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        letter-spacing: -0.03em;
+        line-height: 1.1;
+      }
+      .brand-sub {
+        font-size: 0.82rem;
+        color: var(--text-secondary);
+        margin-top: 4px;
+      }
+      .topbar-right {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-end;
+        gap: 8px;
+      }
+      .sys-info {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-muted);
+        letter-spacing: 0.06em;
+        text-align: right;
+        line-height: 1.8;
+      }
+      .status-badge {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: var(--r-sm);
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        border: 1px solid;
+        transition: all 0.3s;
+      }
+      .status-badge .dot {
+        width: 7px;
+        height: 7px;
+        border-radius: 50%;
+        transition: all 0.3s;
+      }
+      .status-badge.connected {
+        background: var(--green-dim);
+        border-color: var(--green-d);
+        color: var(--green);
+      }
+      .status-badge.connected .dot {
+        background: var(--green);
+        box-shadow: 0 0 6px var(--green);
+        animation: blink 2s ease-in-out infinite;
+      }
+      .status-badge.disconnected {
+        background: var(--red-dim);
+        border-color: rgba(239, 83, 80, 0.3);
+        color: var(--red);
+      }
+      .status-badge.disconnected .dot {
+        background: var(--red);
+      }
+      @keyframes blink {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.4;
+        }
+      }
+      .controls-row {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .controls-row .divider {
+        width: 1px;
+        height: 32px;
+        background: var(--border-hi);
+        flex-shrink: 0;
+      }
+      .btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 20px;
+        border-radius: var(--r-sm);
+        border: 1px solid;
+        font-family: var(--font-mono);
+        font-size: 11px;
+        font-weight: 600;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        white-space: nowrap;
+      }
+      .btn-icon {
+        width: 14px;
+        height: 14px;
+        opacity: 0.9;
+      }
+      .btn-primary {
+        background: rgba(37, 99, 235, 0.14);
+        border-color: rgba(37, 99, 235, 0.5);
+        color: #93c5fd;
+      }
+      .btn-primary:hover {
+        background: rgba(37, 99, 235, 0.22);
+        border-color: rgba(37, 99, 235, 0.8);
+        transform: translateY(-1px);
+      }
+      .btn-danger {
+        background: var(--red-dim);
+        border-color: rgba(239, 83, 80, 0.4);
+        color: var(--red);
+      }
+      .btn-danger:hover {
+        background: rgba(239, 83, 80, 0.2);
+        transform: translateY(-1px);
+      }
+      .btn-ghost {
+        background: transparent;
+        border-color: var(--border-hi);
+        color: var(--text-secondary);
+      }
+      .btn-ghost:hover {
+        background: var(--bg3);
+        color: var(--text-primary);
+      }
+      .main-grid {
+        display: grid;
+        grid-template-columns: 1fr 320px;
+        gap: 20px;
+      }
+      .chair-panel {
+        background: var(--bg1);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 28px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
+      .panel-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      .panel-title {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.14em;
+        color: var(--amber);
+        text-transform: uppercase;
+      }
+      .panel-sub {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-muted);
+        letter-spacing: 0.06em;
+      }
+      .chair-diagram-wrap {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex: 1;
+        min-height: 260px;
+      }
+      #chair-svg {
+        width: 100%;
+        max-width: 440px;
+        height: auto;
+      }
+      .lc-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 14px;
+      }
+      .lc-card {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        transition: border-color 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+      .lc-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 2px;
+      }
+      .lc-card.lc-fl::before {
+        background: var(--cyan);
+      }
+      .lc-card.lc-fr::before {
+        background: var(--green);
+      }
+      .lc-card.lc-rl::before {
+        background: var(--amber);
+      }
+      .lc-card.lc-rr::before {
+        background: var(--purple);
+      }
+      .lc-card:hover {
+        border-color: var(--border-hi);
+      }
+      .lc-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+      }
+      .lc-pos {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 600;
+        letter-spacing: 0.12em;
+        color: var(--text-secondary);
+        text-transform: uppercase;
+      }
+      .lc-id {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        padding: 3px 8px;
+        border-radius: 4px;
+        border: 1px solid var(--border-hi);
+        color: var(--text-muted);
+      }
+      .lc-value-row {
+        display: flex;
+        align-items: baseline;
+        gap: 5px;
+      }
+      .lc-value {
+        font-family: var(--font-mono);
+        font-size: 2.1rem;
+        font-weight: 700;
+        color: var(--text-primary);
+        line-height: 1;
+        letter-spacing: -0.04em;
+        transition: color 0.2s;
+      }
+      .lc-unit {
+        font-family: var(--font-mono);
+        font-size: 0.82rem;
+        color: var(--text-muted);
+      }
+      .dist-bar-wrap {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .dist-bar-meta {
+        display: flex;
+        justify-content: space-between;
+        font-family: var(--font-mono);
+        font-size: 9px;
+        color: var(--text-muted);
+        letter-spacing: 0.06em;
+      }
+      .dist-bar-track {
+        height: 4px;
+        background: var(--bg4);
+        border-radius: 2px;
+        overflow: hidden;
+      }
+      .dist-bar-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition: width 0.35s ease;
+        width: 0%;
+      }
+      .lc-fl .dist-bar-fill {
+        background: var(--cyan);
+      }
+      .lc-fr .dist-bar-fill {
+        background: var(--green);
+      }
+      .lc-rl .dist-bar-fill {
+        background: var(--amber);
+      }
+      .lc-rr .dist-bar-fill {
+        background: var(--purple);
+      }
+      .lc-tare-btn {
+        width: 100%;
+        padding: 7px;
+        border-radius: var(--r-sm);
+        background: transparent;
+        border: 1px solid var(--border);
+        color: var(--text-secondary);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        font-weight: 500;
+        letter-spacing: 0.1em;
+        cursor: pointer;
+        transition: all 0.18s;
+      }
+      .lc-tare-btn:hover {
+        background: var(--bg3);
+        border-color: var(--border-hi);
+        color: var(--text-primary);
+      }
+      .right-panel {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+      }
+      .total-card {
+        background: var(--bg1);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .total-readout {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: 18px 0;
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        background: var(--bg2);
+        position: relative;
+        overflow: hidden;
+      }
+      .total-readout::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          var(--amber),
+          transparent
+        );
+        opacity: 0.6;
+      }
+      .total-label {
+        font-family: var(--font-mono);
+        font-size: 9px;
+        letter-spacing: 0.18em;
+        color: var(--text-muted);
+        text-transform: uppercase;
+      }
+      #totalWeight {
+        font-family: var(--font-mono);
+        font-size: 2.8rem;
+        font-weight: 700;
+        color: var(--amber);
+        letter-spacing: -0.05em;
+        line-height: 1;
+      }
+      .total-unit {
+        font-family: var(--font-mono);
+        font-size: 0.85rem;
+        color: var(--amber-d);
+      }
+      .dist-overview {
+        background: var(--bg1);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 14px;
+      }
+      .dist-bars {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+      .dist-row {
+        display: grid;
+        grid-template-columns: 56px 1fr 42px;
+        align-items: center;
+        gap: 10px;
+      }
+      .dist-row-label {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-secondary);
+      }
+      .dist-row-track {
+        height: 5px;
+        background: var(--bg4);
+        border-radius: 3px;
+        overflow: hidden;
+      }
+      .dist-row-fill {
+        height: 100%;
+        border-radius: 3px;
+        transition: width 0.4s ease;
+        width: 0%;
+      }
+      .dist-row-pct {
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-secondary);
+        text-align: right;
+      }
+      .log-card {
+        background: var(--bg1);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 18px;
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+      .log-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+      #logs {
+        background: var(--bg0);
+        border: 1px solid var(--border);
+        border-radius: var(--r-sm);
+        padding: 12px;
+        min-height: 100px;
+        max-height: 200px;
+        overflow-y: auto;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-muted);
+        line-height: 1.7;
+        letter-spacing: 0.03em;
+      }
+      #logs .log-line {
+        color: var(--text-secondary);
+      }
+      #logs .log-line.ok {
+        color: var(--green);
+      }
+      #logs .log-line.err {
+        color: var(--red);
+      }
+      #logs .log-line.cmd {
+        color: var(--amber);
+      }
+      #logs::-webkit-scrollbar {
+        width: 4px;
+      }
+      #logs::-webkit-scrollbar-thumb {
+        background: var(--bg4);
+        border-radius: 2px;
+      }
+      .alert-bar {
+        display: none;
+        align-items: center;
+        gap: 10px;
+        padding: 9px 14px;
+        border-radius: var(--r-sm);
+        background: rgba(232, 160, 32, 0.1);
+        border: 1px solid rgba(232, 160, 32, 0.35);
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--amber);
+        letter-spacing: 0.06em;
+      }
+      .alert-bar.show {
+        display: flex;
+      }
+      .alert-dot {
+        width: 6px;
+        height: 6px;
+        border-radius: 50%;
+        background: var(--amber);
+        animation: blink 1s ease-in-out infinite;
+        flex-shrink: 0;
+      }
+      .bottom-strip {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+      }
+      .stat-chip {
+        background: var(--bg2);
+        border: 1px solid var(--border);
+        border-radius: var(--r-sm);
+        padding: 7px 12px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-family: var(--font-mono);
+        font-size: 10px;
+        color: var(--text-muted);
+      }
+      .stat-chip span {
+        color: var(--text-secondary);
+      }
+      @media (max-width: 1100px) {
+        .main-grid {
+          grid-template-columns: 1fr;
+        }
+        .right-panel {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+      }
+      @media (max-width: 640px) {
+        body {
+          padding: 14px;
+        }
+        .brand-title {
+          font-size: 1.2rem;
+        }
+        .lc-grid {
+          grid-template-columns: 1fr;
+        }
+        .right-panel {
+          grid-template-columns: 1fr;
+        }
+        #totalWeight {
+          font-size: 2.2rem;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <!-- =============================== -->
+      <!-- TOPBAR -->
+      <!-- =============================== -->
+
+      <div class="topbar">
+        <div>
+          <!-- <div class="brand-label">Structural Load Analysis</div> -->
+          <div class="brand-title">LCAS-4CH</div>
+          <div class="brand-sub">
+            4-Channel Load Cell Monitor · ESP32 BLE · HX711
+          </div>
+        </div>
+
+        <div class="topbar-right">
+          <div class="sys-info">
+            <!-- SVC: 4fafc201-1fb5<br />
+            CHR: beb5483e-36e1<br />
+            DEVICE: LC_SYSTEM -->
+          </div>
+          <div class="status-badge disconnected" id="bleStatus">
+            <div class="dot"></div>
+            <span id="statusText">OFFLINE</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- =============================== -->
+      <!-- CONTROLS -->
+      <!-- =============================== -->
+
+      <div class="controls-row">
+        <button class="btn btn-primary" id="connectBtn">
+          <svg
+            class="btn-icon"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path
+              d="M9.5 1.5L6 5H3a1 1 0 00-1 1v4a1 1 0 001 1h3l3.5 3.5M6.5 5.5l3-3M9.5 10.5l3 3"
+            />
+            <circle cx="12" cy="4" r="1.5" />
+            <circle cx="12" cy="12" r="1.5" />
+          </svg>
+          CONNECT BLE
+        </button>
+
+        <div class="divider"></div>
+
+        <button class="btn btn-danger" onclick="tareSensor('tare_all')">
+          <svg
+            class="btn-icon"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path d="M8 3v10M3 8h10" />
+            <circle cx="8" cy="8" r="6" />
+          </svg>
+          TARE ALL
+        </button>
+
+        <button class="btn btn-ghost" onclick="clearLogs()">
+          <svg
+            class="btn-icon"
+            viewBox="0 0 16 16"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="1.5"
+          >
+            <path d="M3 4h10M6 4V2.5h4V4M5 4v9h6V4" />
+          </svg>
+          CLEAR LOG
+        </button>
+      </div>
+
+      <!-- ALERT BAR -->
+      <div class="alert-bar" id="alertBar">
+        <div class="alert-dot"></div>
+        <span id="alertText">LOAD IMBALANCE DETECTED — CHECK LEG CONTACT</span>
+      </div>
+
+      <!-- =============================== -->
+      <!-- MAIN GRID -->
+      <!-- =============================== -->
+
+      <div class="main-grid">
+        <!-- LEFT: Chair diagram + LC cards -->
+        <div style="display: flex; flex-direction: column; gap: 18px">
+          <!-- Chair Diagram Panel -->
+          <div class="chair-panel">
+            <div class="panel-header">
+              <div class="panel-title">Load Distribution Map</div>
+              <div class="panel-sub">TOP VIEW · 4-POINT CONTACT</div>
+            </div>
+
+            <div class="chair-diagram-wrap">
+              <svg
+                id="chair-svg"
+                viewBox="0 0 440 380"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <!-- Grid lines -->
+                <line
+                  x1="220"
+                  y1="20"
+                  x2="220"
+                  y2="360"
+                  stroke="rgba(255,255,255,0.04)"
+                  stroke-width="1"
+                />
+                <line
+                  x1="20"
+                  y1="190"
+                  x2="420"
+                  y2="190"
+                  stroke="rgba(255,255,255,0.04)"
+                  stroke-width="1"
+                />
+
+                <!-- Chair seat outline -->
+                <rect
+                  x="100"
+                  y="80"
+                  width="240"
+                  height="220"
+                  rx="14"
+                  fill="rgba(255,255,255,0.03)"
+                  stroke="rgba(255,255,255,0.12)"
+                  stroke-width="1.5"
+                />
+
+                <!-- Center cross marker -->
+                <line
+                  x1="205"
+                  y1="190"
+                  x2="235"
+                  y2="190"
+                  stroke="rgba(255,255,255,0.1)"
+                  stroke-width="1"
+                />
+                <line
+                  x1="220"
+                  y1="175"
+                  x2="220"
+                  y2="205"
+                  stroke="rgba(255,255,255,0.1)"
+                  stroke-width="1"
+                />
+                <circle
+                  cx="220"
+                  cy="190"
+                  r="3"
+                  fill="none"
+                  stroke="rgba(255,255,255,0.15)"
+                  stroke-width="1"
+                />
+
+                <!-- CG marker (dynamic) -->
+                <circle
+                  id="cg-dot"
+                  cx="220"
+                  cy="190"
+                  r="5"
+                  fill="#e8a020"
+                  opacity="0.7"
+                />
+                <circle
+                  id="cg-ring"
+                  cx="220"
+                  cy="190"
+                  r="10"
+                  fill="none"
+                  stroke="#e8a020"
+                  stroke-width="1"
+                  opacity="0.3"
+                />
+
+                <!-- Leg indicators - FL -->
+                <g id="leg-fl">
+                  <circle
+                    cx="118"
+                    cy="100"
+                    r="28"
+                    fill="rgba(56,189,248,0.06)"
+                    stroke="rgba(56,189,248,0.3)"
+                    stroke-width="1.5"
+                  />
+                  <circle
+                    cx="118"
+                    cy="100"
+                    r="14"
+                    fill="rgba(56,189,248,0.1)"
+                    stroke="rgba(56,189,248,0.5)"
+                    stroke-width="1"
+                  />
+                  <text
+                    x="118"
+                    y="95"
+                    text-anchor="middle"
+                    font-family="'JetBrains Mono',monospace"
+                    font-size="8"
+                    fill="rgba(56,189,248,0.6)"
+                    letter-spacing="0.08em"
+                  >
+                    FL
+                  </text>
+                  <text
+                    id="svg-lc1"
+                    x="118"
+                    y="108"
+                    text-anchor="middle"
+                    font-family="'JetBrains Mono',monospace"
+                    font-size="9"
+                    font-weight="600"
+                    fill="#38bdf8"
+                  >
+                    0.0
+                  </text>
+                </g>
+
+                <!-- Leg indicators - FR -->
+                <g id="leg-fr">
+                  <circle
+                    cx="322"
+                    cy="100"
+                    r="28"
+                    fill="rgba(34,201,122,0.06)"
+                    stroke="rgba(34,201,122,0.3)"
+                    stroke-width="1.5"
+                  />
+                  <circle
+                    cx="322"
+                    cy="100"
+                    r="14"
+                    fill="rgba(34,201,122,0.1)"
+                    stroke="rgba(34,201,122,0.5)"
+                    stroke-width="1"
+                  />
+                  <text
+                    x="322"
+                    y="95"
+                    text-anchor="middle"
+                    font-family="'JetBrains Mono',monospace"
+                    font-size="8"
+                    fill="rgba(34,201,122,0.6)"
+                    letter-spacing="0.08em"
+                  >
+                    FR
+                  </text>
+                  <text
+                    id="svg-lc2"
+                    x="322"
+                    y="108"
+                    text-anchor="middle"
+                    font-family="'JetBrains Mono',monospace"
+                    font-size="9"
+                    font-weight="600"
+                    fill="#22c97a"
+                  >
+                    0.0
+                  </text>
+                </g>
+
+                <!-- Leg indicators - RL -->
+                <g id="leg-rl">
+                  <circle
+                    cx="118"
+                    cy="280"
+                    r="28"
+                    fill="rgba(232,160,32,0.06)"
+                    stroke="rgba(232,160,32,0.3)"
+                    stroke-width="1.5"
+                  />
+                  <circle
+                    cx="118"
+                    cy="280"
+                    r="14"
+                    fill="rgba(232,160,32,0.1)"
+                    stroke="rgba(232,160,32,0.5)"
+                    stroke-width="1"
+                  />
+                  <text
+                    x="118"
+                    y="275"
+                    text-anchor="middle"
+                    font-family="'JetBrains Mono',monospace"
+                    font-size="8"
+                    fill="rgba(232,160,32,0.6)"
+                    letter-spacing="0.08em"
+                  >
+                    RL
+                  </text>
+                  <text
+                    id="svg-lc3"
+                    x="118"
+                    y="288"
+                    text-anchor="middle"
+                    font-family="'JetBrains Mono',monospace"
+                    font-size="9"
+                    font-weight="600"
+                    fill="#e8a020"
+                  >
+                    0.0
+                  </text>
+                </g>
+
+                <!-- Leg indicators - RR -->
+                <g id="leg-rr">
+                  <circle
+                    cx="322"
+                    cy="280"
+                    r="28"
+                    fill="rgba(167,139,250,0.06)"
+                    stroke="rgba(167,139,250,0.3)"
+                    stroke-width="1.5"
+                  />
+                  <circle
+                    cx="322"
+                    cy="280"
+                    r="14"
+                    fill="rgba(167,139,250,0.1)"
+                    stroke="rgba(167,139,250,0.5)"
+                    stroke-width="1"
+                  />
+                  <text
+                    x="322"
+                    y="275"
+                    text-anchor="middle"
+                    font-family="'JetBrains Mono',monospace"
+                    font-size="8"
+                    fill="rgba(167,139,250,0.6)"
+                    letter-spacing="0.08em"
+                  >
+                    RR
+                  </text>
+                  <text
+                    id="svg-lc4"
+                    x="322"
+                    y="288"
+                    text-anchor="middle"
+                    font-family="'JetBrains Mono',monospace"
+                    font-size="9"
+                    font-weight="600"
+                    fill="#a78bfa"
+                  >
+                    0.0
+                  </text>
+                </g>
+
+                <!-- Front/Rear labels -->
+                <text
+                  x="220"
+                  y="46"
+                  text-anchor="middle"
+                  font-family="'JetBrains Mono',monospace"
+                  font-size="9"
+                  fill="rgba(255,255,255,0.18)"
+                  letter-spacing="0.14em"
+                >
+                  FRONT
+                </text>
+                <text
+                  x="220"
+                  y="352"
+                  text-anchor="middle"
+                  font-family="'JetBrains Mono',monospace"
+                  font-size="9"
+                  fill="rgba(255,255,255,0.18)"
+                  letter-spacing="0.14em"
+                >
+                  REAR
+                </text>
+                <text
+                  x="26"
+                  y="194"
+                  text-anchor="middle"
+                  font-family="'JetBrains Mono',monospace"
+                  font-size="9"
+                  fill="rgba(255,255,255,0.18)"
+                  letter-spacing="0.08em"
+                >
+                  L
+                </text>
+                <text
+                  x="414"
+                  y="194"
+                  text-anchor="middle"
+                  font-family="'JetBrains Mono',monospace"
+                  font-size="9"
+                  fill="rgba(255,255,255,0.18)"
+                  letter-spacing="0.08em"
+                >
+                  R
+                </text>
+              </svg>
+            </div>
+          </div>
+
+          <!-- LC Cards Grid -->
+          <div class="lc-grid">
+            <!-- LC1 - Front Left -->
+            <div class="lc-card lc-fl">
+              <div class="lc-card-header">
+                <div class="lc-pos">Front Left</div>
+                <div class="lc-id">LC1</div>
+              </div>
+              <div class="lc-value-row">
+                <div class="lc-value" id="lc1">0.0</div>
+                <div class="lc-unit">g</div>
+              </div>
+              <div class="dist-bar-wrap">
+                <div class="dist-bar-meta">
+                  <span>LOAD SHARE</span>
+                  <span id="pct1">0.0%</span>
+                </div>
+                <div class="dist-bar-track">
+                  <div class="dist-bar-fill" id="bar1"></div>
+                </div>
+              </div>
+              <button class="lc-tare-btn" onclick="tareSensor('tare1')">
+                TARE LC1
+              </button>
+            </div>
+
+            <!-- LC2 - Front Right -->
+            <div class="lc-card lc-fr">
+              <div class="lc-card-header">
+                <div class="lc-pos">Front Right</div>
+                <div class="lc-id">LC2</div>
+              </div>
+              <div class="lc-value-row">
+                <div class="lc-value" id="lc2">0.0</div>
+                <div class="lc-unit">g</div>
+              </div>
+              <div class="dist-bar-wrap">
+                <div class="dist-bar-meta">
+                  <span>LOAD SHARE</span>
+                  <span id="pct2">0.0%</span>
+                </div>
+                <div class="dist-bar-track">
+                  <div class="dist-bar-fill" id="bar2"></div>
+                </div>
+              </div>
+              <button class="lc-tare-btn" onclick="tareSensor('tare2')">
+                TARE LC2
+              </button>
+            </div>
+
+            <!-- LC3 - Rear Left -->
+            <div class="lc-card lc-rl">
+              <div class="lc-card-header">
+                <div class="lc-pos">Rear Left</div>
+                <div class="lc-id">LC3</div>
+              </div>
+              <div class="lc-value-row">
+                <div class="lc-value" id="lc3">0.0</div>
+                <div class="lc-unit">g</div>
+              </div>
+              <div class="dist-bar-wrap">
+                <div class="dist-bar-meta">
+                  <span>LOAD SHARE</span>
+                  <span id="pct3">0.0%</span>
+                </div>
+                <div class="dist-bar-track">
+                  <div class="dist-bar-fill" id="bar3"></div>
+                </div>
+              </div>
+              <button class="lc-tare-btn" onclick="tareSensor('tare3')">
+                TARE LC3
+              </button>
+            </div>
+
+            <!-- LC4 - Rear Right -->
+            <div class="lc-card lc-rr">
+              <div class="lc-card-header">
+                <div class="lc-pos">Rear Right</div>
+                <div class="lc-id">LC4</div>
+              </div>
+              <div class="lc-value-row">
+                <div class="lc-value" id="lc4">0.0</div>
+                <div class="lc-unit">g</div>
+              </div>
+              <div class="dist-bar-wrap">
+                <div class="dist-bar-meta">
+                  <span>LOAD SHARE</span>
+                  <span id="pct4">0.0%</span>
+                </div>
+                <div class="dist-bar-track">
+                  <div class="dist-bar-fill" id="bar4"></div>
+                </div>
+              </div>
+              <button class="lc-tare-btn" onclick="tareSensor('tare4')">
+                TARE LC4
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- RIGHT PANEL -->
+        <div class="right-panel">
+          <!-- Total -->
+          <div class="total-card">
+            <div class="panel-title">Total Load</div>
+            <div class="total-readout">
+              <div class="total-label">AGGREGATE · g</div>
+              <div id="totalWeight">0.0</div>
+              <div class="total-unit">grams</div>
+            </div>
+          </div>
+
+          <!-- Distribution Overview -->
+          <div class="dist-overview">
+            <div class="panel-title">Load Distribution</div>
+            <div class="dist-bars">
+              <div class="dist-row">
+                <div class="dist-row-label" style="color: var(--cyan)">FL</div>
+                <div class="dist-row-track">
+                  <div
+                    class="dist-row-fill"
+                    id="dbar1"
+                    style="background: var(--cyan)"
+                  ></div>
+                </div>
+                <div class="dist-row-pct" id="dpct1">0%</div>
+              </div>
+
+              <div class="dist-row">
+                <div class="dist-row-label" style="color: var(--green)">FR</div>
+                <div class="dist-row-track">
+                  <div
+                    class="dist-row-fill"
+                    id="dbar2"
+                    style="background: var(--green)"
+                  ></div>
+                </div>
+                <div class="dist-row-pct" id="dpct2">0%</div>
+              </div>
+
+              <div class="dist-row">
+                <div class="dist-row-label" style="color: var(--amber)">RL</div>
+                <div class="dist-row-track">
+                  <div
+                    class="dist-row-fill"
+                    id="dbar3"
+                    style="background: var(--amber)"
+                  ></div>
+                </div>
+                <div class="dist-row-pct" id="dpct3">0%</div>
+              </div>
+
+              <div class="dist-row">
+                <div class="dist-row-label" style="color: var(--purple)">
+                  RR
+                </div>
+                <div class="dist-row-track">
+                  <div
+                    class="dist-row-fill"
+                    id="dbar4"
+                    style="background: var(--purple)"
+                  ></div>
+                </div>
+                <div class="dist-row-pct" id="dpct4">0%</div>
+              </div>
+            </div>
+
+            <!-- Front/Rear split -->
+            <div
+              style="
+                margin-top: 6px;
+                padding-top: 14px;
+                border-top: 1px solid var(--border);
+              "
+            >
+              <div class="panel-sub" style="margin-bottom: 10px">F/R SPLIT</div>
+              <div class="dist-row">
+                <div class="dist-row-label">FRONT</div>
+                <div class="dist-row-track">
+                  <div
+                    class="dist-row-fill"
+                    id="dbar-front"
+                    style="background: rgba(56, 189, 248, 0.6)"
+                  ></div>
+                </div>
+                <div class="dist-row-pct" id="dpct-front">0%</div>
+              </div>
+              <div class="dist-row" style="margin-top: 8px">
+                <div class="dist-row-label">REAR</div>
+                <div class="dist-row-track">
+                  <div
+                    class="dist-row-fill"
+                    id="dbar-rear"
+                    style="background: rgba(232, 160, 32, 0.6)"
+                  ></div>
+                </div>
+                <div class="dist-row-pct" id="dpct-rear">0%</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Logs -->
+          <div class="log-card">
+            <div class="log-header">
+              <div class="panel-title">BLE Event Log</div>
+              <button
+                class="btn btn-ghost"
+                style="padding: 6px 12px; font-size: 10px"
+                onclick="clearLogs()"
+              >
+                CLR
+              </button>
+            </div>
+            <div id="logs">Waiting for connection...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- BOTTOM STRIP -->
+      <div class="bottom-strip">
+        <div class="stat-chip">FILTER α<span id="chip-alpha">0.45</span></div>
+        <div class="stat-chip">NOISE FLOOR<span>±5 g</span></div>
+        <div class="stat-chip">CH<span>4</span></div>
+        <div class="stat-chip">OFFSET LC1<span>540522</span></div>
+        <div class="stat-chip">OFFSET LC2<span>-32549</span></div>
+        <div class="stat-chip">OFFSET LC3<span>-74712</span></div>
+        <div class="stat-chip">OFFSET LC4<span>-133023</span></div>
+      </div>
+    </div>
+
+    <script>
+      let device = null,
+        server = null,
+        service = null,
+        characteristic = null;
+      const SERVICE_UUID = "4fafc201-1fb5-459e-8fcc-c5c9c331914b";
+      const CHARACTERISTIC_UUID = "beb5483e-36e1-4688-b7f5-ea07361b26a8";
+      const connectBtn = document.getElementById("connectBtn");
+      const statusEl = document.getElementById("bleStatus");
+      const statusText = document.getElementById("statusText");
+      const logsEl = document.getElementById("logs");
+      const alertBar = document.getElementById("alertBar");
+
+      connectBtn.addEventListener("click", async () => {
+        if (device && device.gatt.connected) {
+          device.gatt.disconnect();
+          return;
+        }
+        await connectBLE();
+      });
+
+      async function connectBLE() {
+        try {
+          addLog("Scanning for BLE device...");
+          device = await navigator.bluetooth.requestDevice({
+            filters: [{ namePrefix: "LC" }],
+            optionalServices: [SERVICE_UUID],
+          });
+          addLog("Selected: " + (device.name || "Unknown"));
+          device.addEventListener("gattserverdisconnected", onDisconnected);
+          server = await device.gatt.connect();
+          addLog("GATT connected");
+          service = await server.getPrimaryService(SERVICE_UUID);
+          addLog("Service acquired");
+          characteristic = await service.getCharacteristic(CHARACTERISTIC_UUID);
+          addLog("Characteristic acquired");
+          await characteristic.startNotifications();
+          characteristic.addEventListener(
+            "characteristicvaluechanged",
+            handleData,
+          );
+          addLog("Notification stream active", "ok");
+          setConnectedUI(true);
+        } catch (error) {
+          console.error(error);
+          addLog("Connection failed: " + error.message, "err");
+          setConnectedUI(false);
+        }
+      }
+
+      function handleData(event) {
+        try {
+          const raw = new TextDecoder().decode(event.target.value);
+          const data = JSON.parse(raw);
+          const v1 = sanitize(data.lc1),
+            v2 = sanitize(data.lc2),
+            v3 = sanitize(data.lc3),
+            v4 = sanitize(data.lc4);
+          let total = data.total !== undefined ? data.total : v1 + v2 + v3 + v4;
+          updateCard("lc1", v1);
+          updateCard("lc2", v2);
+          updateCard("lc3", v3);
+          updateCard("lc4", v4);
+          document.getElementById("totalWeight").textContent = total.toFixed(1);
+          updateDistribution(v1, v2, v3, v4, total);
+          updateSVG(v1, v2, v3, v4, total);
+          checkImbalance(v1, v2, v3, v4, total);
+        } catch (error) {
+          console.error("Parse error:", error);
+        }
+      }
+
+      function updateCard(id, value) {
+        const el = document.getElementById(id);
+        if (el) el.textContent = value.toFixed(1);
+      }
+
+      function updateDistribution(v1, v2, v3, v4, total) {
+        if (total <= 0) {
+          [
+            "bar1",
+            "bar2",
+            "bar3",
+            "bar4",
+            "dbar1",
+            "dbar2",
+            "dbar3",
+            "dbar4",
+            "dbar-front",
+            "dbar-rear",
+          ].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.style.width = "0%";
+          });
+          [
+            "pct1",
+            "pct2",
+            "pct3",
+            "pct4",
+            "dpct1",
+            "dpct2",
+            "dpct3",
+            "dpct4",
+            "dpct-front",
+            "dpct-rear",
+          ].forEach((id) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = "0%";
+          });
+          return;
+        }
+        const vals = [v1, v2, v3, v4];
+        const pcts = vals.map((v) => (v / total) * 100);
+        ["bar1", "bar2", "bar3", "bar4"].forEach((id, i) => {
+          const el = document.getElementById(id);
+          if (el) el.style.width = Math.max(0, pcts[i]).toFixed(1) + "%";
+          const pt = document.getElementById("pct" + (i + 1));
+          if (pt) pt.textContent = Math.max(0, pcts[i]).toFixed(1) + "%";
+        });
+        ["dbar1", "dbar2", "dbar3", "dbar4"].forEach((id, i) => {
+          const el = document.getElementById(id);
+          if (el) el.style.width = Math.max(0, pcts[i]).toFixed(1) + "%";
+          const dp = document.getElementById("dpct" + (i + 1));
+          if (dp) dp.textContent = Math.max(0, pcts[i]).toFixed(0) + "%";
+        });
+        const fPct = ((v1 + v2) / total) * 100,
+          rPct = ((v3 + v4) / total) * 100;
+        const dbF = document.getElementById("dbar-front"),
+          dbR = document.getElementById("dbar-rear");
+        const dpF = document.getElementById("dpct-front"),
+          dpR = document.getElementById("dpct-rear");
+        if (dbF) dbF.style.width = Math.max(0, fPct).toFixed(1) + "%";
+        if (dbR) dbR.style.width = Math.max(0, rPct).toFixed(1) + "%";
+        if (dpF) dpF.textContent = Math.max(0, fPct).toFixed(0) + "%";
+        if (dpR) dpR.textContent = Math.max(0, rPct).toFixed(0) + "%";
+      }
+
+      function updateSVG(v1, v2, v3, v4, total) {
+        const s1 = document.getElementById("svg-lc1"),
+          s2 = document.getElementById("svg-lc2"),
+          s3 = document.getElementById("svg-lc3"),
+          s4 = document.getElementById("svg-lc4");
+        if (s1) s1.textContent = v1.toFixed(1);
+        if (s2) s2.textContent = v2.toFixed(1);
+        if (s3) s3.textContent = v3.toFixed(1);
+        if (s4) s4.textContent = v4.toFixed(1);
+        if (total > 0) {
+          [
+            { id: "leg-fl", val: v1 },
+            { id: "leg-fr", val: v2 },
+            { id: "leg-rl", val: v3 },
+            { id: "leg-rr", val: v4 },
+          ].forEach((leg) => {
+            const pct = leg.val / total;
+            const g = document.getElementById(leg.id);
+            if (!g) return;
+            const c = g.querySelector("circle:first-child");
+            if (c) c.setAttribute("r", (16 + pct * 40).toFixed(1));
+          });
+          const cgX = (v1 * 118 + v2 * 322 + v3 * 118 + v4 * 322) / total;
+          const cgY = (v1 * 100 + v2 * 100 + v3 * 280 + v4 * 280) / total;
+          const cgDot = document.getElementById("cg-dot"),
+            cgRing = document.getElementById("cg-ring");
+          if (cgDot) {
+            cgDot.setAttribute("cx", cgX.toFixed(1));
+            cgDot.setAttribute("cy", cgY.toFixed(1));
+          }
+          if (cgRing) {
+            cgRing.setAttribute("cx", cgX.toFixed(1));
+            cgRing.setAttribute("cy", cgY.toFixed(1));
+          }
+        }
+      }
+
+      function checkImbalance(v1, v2, v3, v4, total) {
+        if (total < 50) {
+          if (alertBar) alertBar.classList.remove("show");
+          return;
+        }
+        const vals = [v1, v2, v3, v4];
+        const pcts = vals.map((v) => (v / total) * 100);
+        const maxDev = Math.max(...pcts.map((p) => Math.abs(p - 25)));
+        const zeroLegs = vals.filter((v) => v < total * 0.05).length;
+        if (maxDev > 20 || zeroLegs > 0) {
+          if (alertBar) {
+            alertBar.classList.add("show");
+            const at = document.getElementById("alertText");
+            if (at)
+              at.textContent =
+                zeroLegs > 0
+                  ? zeroLegs +
+                    "-LEG DEAD ZONE DETECTED — " +
+                    zeroLegs +
+                    " CONTACT POINT(S) NEAR ZERO"
+                  : "LOAD IMBALANCE +" +
+                    maxDev.toFixed(0) +
+                    "% FROM IDEAL — CHECK SURFACE LEVEL";
+          }
+        } else {
+          if (alertBar) alertBar.classList.remove("show");
+        }
+      }
+
+      function sanitize(v) {
+        if (v === undefined || v === null || isNaN(v)) return 0;
+        return Number(v);
+      }
+
+      async function tareSensor(cmd) {
+        try {
+          if (!characteristic) {
+            addLog("BLE not connected", "err");
+            return;
+          }
+          await characteristic.writeValue(new TextEncoder().encode(cmd));
+          addLog("CMD → " + cmd, "cmd");
+        } catch (error) {
+          addLog("Write failed: " + error.message, "err");
+        }
+      }
+
+      async function tareAll() {
+        await tareSensor("tare_all");
+      }
+
+      function onDisconnected() {
+        addLog("BLE link lost", "err");
+        setConnectedUI(false);
+        characteristic = null;
+        server = null;
+        service = null;
+      }
+
+      function setConnectedUI(state) {
+        if (state) {
+          statusEl.classList.remove("disconnected");
+          statusEl.classList.add("connected");
+          if (statusText) statusText.textContent = "ONLINE";
+          connectBtn.innerHTML =
+            '<svg class="btn-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M3 8h10M8 3l5 5-5 5"/></svg>DISCONNECT';
+          connectBtn.classList.remove("btn-primary");
+          connectBtn.classList.add("btn-danger");
+        } else {
+          statusEl.classList.remove("connected");
+          statusEl.classList.add("disconnected");
+          if (statusText) statusText.textContent = "OFFLINE";
+          connectBtn.innerHTML =
+            '<svg class="btn-icon" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M9.5 1.5L6 5H3a1 1 0 00-1 1v4a1 1 0 001 1h3l3.5 3.5"/><circle cx="12" cy="4" r="1.5"/><circle cx="12" cy="12" r="1.5"/></svg>CONNECT BLE';
+          connectBtn.classList.remove("btn-danger");
+          connectBtn.classList.add("btn-primary");
+          if (alertBar) alertBar.classList.remove("show");
+        }
+      }
+
+      function addLog(message, type) {
+        if (!logsEl) return;
+        const time = new Date().toLocaleTimeString("en-GB", {
+          hour12: false,
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+        });
+        const line = document.createElement("div");
+        line.className = "log-line" + (type ? " " + type : "");
+        line.textContent = "[" + time + "] " + message;
+        logsEl.appendChild(line);
+        logsEl.scrollTop = logsEl.scrollHeight;
+      }
+
+      function clearLogs() {
+        if (logsEl) logsEl.innerHTML = "";
+      }
+    </script>
+  </body>
+</html>
