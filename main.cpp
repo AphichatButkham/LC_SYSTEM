@@ -19,37 +19,37 @@ HX711 scale4;
 // Pin Configuration
 // ======================================================
 
-#define DT1   16
-#define SCK1   4
+#define DT1   4
+#define SCK1   16
 
-#define DT2   17
-#define SCK2   5
+#define DT2   5
+#define SCK2   17
 
-#define DT3   18
-#define SCK3   19
+#define DT3   19
+#define SCK3   18
 
-#define DT4   21
-#define SCK4   22
+#define DT4   22
+#define SCK4   21
 
 // ======================================================
 // Calibration Values
 // ======================================================
 
 // LC1
-#define OFFSET1   540522
-#define SCALE1    409.080627
+#define OFFSET1   -553398
+#define SCALE1    -411.218140
 
 // LC2
-#define OFFSET2   -32549
-#define SCALE2    384.099976
+#define OFFSET2   24581
+#define SCALE2    -386.931763
 
 // LC3
-#define OFFSET3   -74712
-#define SCALE3    371.600220
+#define OFFSET3   -143372
+#define SCALE3    368.242004
 
 // LC4
-#define OFFSET4   -133023
-#define SCALE4    381.858521
+#define OFFSET4   122427
+#define SCALE4    -394.790741
 
 // ======================================================
 // Filter
