@@ -613,22 +613,104 @@
         }
       }
       @media (max-width: 640px) {
-        body {
-          padding: 14px;
-        }
-        .brand-title {
-          font-size: 1.2rem;
-        }
-        .lc-grid {
-          grid-template-columns: 1fr;
-        }
-        .right-panel {
-          grid-template-columns: 1fr;
-        }
-        #totalWeight {
-          font-size: 2.2rem;
-        }
+        body { padding: 14px; }
+        .brand-title { font-size: 1.2rem; }
+        .lc-grid { grid-template-columns: 1fr; }
+        .right-panel { grid-template-columns: 1fr; }
+        #totalWeight { font-size: 2.2rem; }
       }
+
+      /* CONTACT PHASE BADGE */
+      .phase-badge {
+        display: inline-flex; align-items: center; gap: 8px;
+        padding: 6px 14px; border-radius: var(--r-sm);
+        font-family: var(--font-mono); font-size: 11px; font-weight: 700;
+        letter-spacing: 0.12em; border: 1px solid; transition: all 0.4s ease;
+      }
+      .phase-badge .ph-dot {
+        width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0;
+      }
+      .phase-badge.phase-0 {
+        background: rgba(85,85,106,0.15); border-color: rgba(85,85,106,0.3); color: var(--text-muted);
+      }
+      .phase-badge.phase-0 .ph-dot { background: var(--text-muted); }
+      .phase-badge.phase-3 {
+        background: rgba(232,160,32,0.13); border-color: rgba(232,160,32,0.55);
+        color: var(--amber-l); box-shadow: 0 0 16px rgba(232,160,32,0.2);
+      }
+      .phase-badge.phase-3 .ph-dot {
+        background: var(--amber); box-shadow: 0 0 6px var(--amber);
+        animation: blink 0.85s ease-in-out infinite;
+      }
+      .phase-badge.phase-4 {
+        background: rgba(34,201,122,0.12); border-color: rgba(34,201,122,0.5);
+        color: var(--green); box-shadow: 0 0 16px rgba(34,201,122,0.15);
+      }
+      .phase-badge.phase-4 .ph-dot {
+        background: var(--green); box-shadow: 0 0 6px var(--green);
+        animation: blink 2s ease-in-out infinite;
+      }
+
+      /* LC CARD STATES */
+      .lc-card { transition: opacity 0.4s, filter 0.4s, border-color 0.4s, box-shadow 0.4s; }
+      .lc-card.state-dead {
+        opacity: 0.32; filter: saturate(0.15);
+        border-color: rgba(239,83,80,0.3) !important;
+      }
+      .lc-card.state-dead .lc-value { color: #666 !important; }
+      .lc-card.state-low { opacity: 0.7; }
+      .lc-card.state-low .lc-value { color: var(--amber) !important; }
+      .lc-card.state-normal { opacity: 1; }
+      .lc-card.state-high { opacity: 1; border-color: var(--border-hi) !important; }
+      .lc-card.state-high .lc-value { color: var(--green) !important; }
+      .lc-card.state-over {
+        opacity: 1; border-color: rgba(239,83,80,0.65) !important;
+        box-shadow: 0 0 20px rgba(239,83,80,0.18);
+      }
+      .lc-card.state-over .lc-value { color: var(--red) !important; }
+
+      @keyframes val-flash {
+        0% { opacity: 1; } 25% { opacity: 0.3; } 100% { opacity: 1; }
+      }
+      .lc-value.flashing { animation: val-flash 0.2s ease-out; }
+
+      /* SPARKLINE */
+      .sparkline-wrap { display: flex; flex-direction: column; gap: 5px; margin-top: 2px; }
+      .sparkline-label { font-family: var(--font-mono); font-size: 9px; color: var(--text-muted); letter-spacing: 0.08em; }
+      canvas.sparkline { width: 100%; height: 40px; border-radius: 4px; background: var(--bg0); border: 1px solid var(--border); display: block; }
+
+      /* SHORT LEG TOGGLE */
+      .short-leg-toggle {
+        width: 22px; height: 22px; border-radius: 4px;
+        border: 1px solid var(--border-hi); background: transparent;
+        color: var(--text-muted); font-size: 12px; cursor: pointer;
+        display: flex; align-items: center; justify-content: center;
+        transition: all 0.2s; padding: 0; line-height: 1; flex-shrink: 0;
+      }
+      .short-leg-toggle:hover { border-color: rgba(232,160,32,0.5); color: var(--amber); background: rgba(232,160,32,0.08); }
+      .short-leg-toggle.active { border-color: var(--amber); background: rgba(232,160,32,0.18); color: var(--amber); box-shadow: 0 0 8px rgba(232,160,32,0.3); }
+      .short-leg-label {
+        display: none; font-family: var(--font-mono); font-size: 9px; font-weight: 700;
+        letter-spacing: 0.14em; color: var(--amber);
+        background: rgba(232,160,32,0.1); border: 1px dashed rgba(232,160,32,0.45);
+        border-radius: 4px; padding: 4px 8px; text-align: center;
+      }
+      .lc-card.is-short-leg {
+        border-color: rgba(232,160,32,0.55) !important;
+        box-shadow: 0 0 22px rgba(232,160,32,0.12), inset 0 0 30px rgba(232,160,32,0.03);
+      }
+      .lc-card.is-short-leg .short-leg-label { display: block; }
+
+      /* PHASE TRANSITION LOG */
+      .transition-log {
+        font-family: var(--font-mono); font-size: 10px; color: var(--text-muted);
+        line-height: 1.7; max-height: 80px; overflow-y: auto;
+      }
+      .transition-log .t-entry { display: flex; gap: 8px; }
+      .transition-log .t-time { color: var(--text-muted); flex-shrink: 0; }
+      .transition-log .t-3 { color: var(--amber); }
+      .transition-log .t-4 { color: var(--green); }
+      .transition-log .t-0 { color: var(--text-muted); }
     </style>
   </head>
   <body>
@@ -727,8 +809,14 @@
           <!-- Chair Diagram Panel -->
           <div class="chair-panel">
             <div class="panel-header">
-              <div class="panel-title">Load Distribution Map</div>
-              <div class="panel-sub">TOP VIEW · 4-POINT CONTACT</div>
+              <div>
+                <div class="panel-title">Load Distribution Map</div>
+                <div class="panel-sub" style="margin-top:4px">TOP VIEW · REAL-TIME</div>
+              </div>
+              <div class="phase-badge phase-0" id="phaseBadge">
+                <div class="ph-dot"></div>
+                <span id="phaseText">NO LOAD</span>
+              </div>
             </div>
 
             <div class="chair-diagram-wrap">
@@ -985,6 +1073,28 @@
                   </text>
                 </g>
 
+                <!-- Short Leg Markers (hidden by default, shown via JS) -->
+                <!-- FL marker -->
+                <g id="sl-svg-1" style="opacity:0;transition:opacity 0.3s;pointer-events:none">
+                  <circle cx="118" cy="100" r="32" fill="none" stroke="#e8a020" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+                  <text x="118" y="72" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#e8a020" font-weight="700">↓SHORT</text>
+                </g>
+                <!-- FR marker -->
+                <g id="sl-svg-2" style="opacity:0;transition:opacity 0.3s;pointer-events:none">
+                  <circle cx="322" cy="100" r="32" fill="none" stroke="#e8a020" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+                  <text x="322" y="72" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#e8a020" font-weight="700">↓SHORT</text>
+                </g>
+                <!-- RL marker -->
+                <g id="sl-svg-3" style="opacity:0;transition:opacity 0.3s;pointer-events:none">
+                  <circle cx="118" cy="280" r="32" fill="none" stroke="#e8a020" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+                  <text x="118" y="252" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#e8a020" font-weight="700">↓SHORT</text>
+                </g>
+                <!-- RR marker -->
+                <g id="sl-svg-4" style="opacity:0;transition:opacity 0.3s;pointer-events:none">
+                  <circle cx="322" cy="280" r="32" fill="none" stroke="#e8a020" stroke-width="1.5" stroke-dasharray="4 3" opacity="0.7"/>
+                  <text x="322" y="252" text-anchor="middle" font-family="'JetBrains Mono',monospace" font-size="10" fill="#e8a020" font-weight="700">↓SHORT</text>
+                </g>
+
                 <!-- Front/Rear labels -->
                 <text
                   x="220"
@@ -1037,10 +1147,13 @@
           <!-- LC Cards Grid -->
           <div class="lc-grid">
             <!-- LC1 - Front Left -->
-            <div class="lc-card lc-fl">
+            <div class="lc-card lc-fl" id="card-lc1">
               <div class="lc-card-header">
                 <div class="lc-pos">Front Left</div>
-                <div class="lc-id">LC1</div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div class="lc-id">LC1</div>
+                  <button class="short-leg-toggle" id="sl-1" onclick="toggleShortLeg(1)" title="Mark as short leg">↓</button>
+                </div>
               </div>
               <div class="lc-value-row">
                 <div class="lc-value" id="lc1">0.0</div>
@@ -1055,16 +1168,18 @@
                   <div class="dist-bar-fill" id="bar1"></div>
                 </div>
               </div>
-              <button class="lc-tare-btn" onclick="tareSensor('tare1')">
-                TARE LC1
-              </button>
+              <div class="short-leg-label" id="sl-label-1">SHORT LEG</div>
+              <button class="lc-tare-btn" onclick="tareSensor('tare1')">TARE LC1</button>
             </div>
 
             <!-- LC2 - Front Right -->
-            <div class="lc-card lc-fr">
+            <div class="lc-card lc-fr" id="card-lc2">
               <div class="lc-card-header">
                 <div class="lc-pos">Front Right</div>
-                <div class="lc-id">LC2</div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div class="lc-id">LC2</div>
+                  <button class="short-leg-toggle" id="sl-2" onclick="toggleShortLeg(2)" title="Mark as short leg">↓</button>
+                </div>
               </div>
               <div class="lc-value-row">
                 <div class="lc-value" id="lc2">0.0</div>
@@ -1079,16 +1194,18 @@
                   <div class="dist-bar-fill" id="bar2"></div>
                 </div>
               </div>
-              <button class="lc-tare-btn" onclick="tareSensor('tare2')">
-                TARE LC2
-              </button>
+              <div class="short-leg-label" id="sl-label-2">SHORT LEG</div>
+              <button class="lc-tare-btn" onclick="tareSensor('tare2')">TARE LC2</button>
             </div>
 
             <!-- LC3 - Rear Left -->
-            <div class="lc-card lc-rl">
+            <div class="lc-card lc-rl" id="card-lc3">
               <div class="lc-card-header">
                 <div class="lc-pos">Rear Left</div>
-                <div class="lc-id">LC3</div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div class="lc-id">LC3</div>
+                  <button class="short-leg-toggle" id="sl-3" onclick="toggleShortLeg(3)" title="Mark as short leg">↓</button>
+                </div>
               </div>
               <div class="lc-value-row">
                 <div class="lc-value" id="lc3">0.0</div>
@@ -1103,16 +1220,18 @@
                   <div class="dist-bar-fill" id="bar3"></div>
                 </div>
               </div>
-              <button class="lc-tare-btn" onclick="tareSensor('tare3')">
-                TARE LC3
-              </button>
+              <div class="short-leg-label" id="sl-label-3">SHORT LEG</div>
+              <button class="lc-tare-btn" onclick="tareSensor('tare3')">TARE LC3</button>
             </div>
 
             <!-- LC4 - Rear Right -->
-            <div class="lc-card lc-rr">
+            <div class="lc-card lc-rr" id="card-lc4">
               <div class="lc-card-header">
                 <div class="lc-pos">Rear Right</div>
-                <div class="lc-id">LC4</div>
+                <div style="display:flex;align-items:center;gap:6px">
+                  <div class="lc-id">LC4</div>
+                  <button class="short-leg-toggle" id="sl-4" onclick="toggleShortLeg(4)" title="Mark as short leg">↓</button>
+                </div>
               </div>
               <div class="lc-value-row">
                 <div class="lc-value" id="lc4">0.0</div>
@@ -1127,9 +1246,8 @@
                   <div class="dist-bar-fill" id="bar4"></div>
                 </div>
               </div>
-              <button class="lc-tare-btn" onclick="tareSensor('tare4')">
-                TARE LC4
-              </button>
+              <div class="short-leg-label" id="sl-label-4">SHORT LEG</div>
+              <button class="lc-tare-btn" onclick="tareSensor('tare4')">TARE LC4</button>
             </div>
           </div>
         </div>
@@ -1235,6 +1353,22 @@
             </div>
           </div>
 
+          <!-- Phase Transition Log -->
+          <div class="log-card" style="gap:10px">
+            <div class="log-header">
+              <div class="panel-title">Contact Phase Log</div>
+              <button class="btn btn-ghost" style="padding:6px 12px;font-size:10px" onclick="clearPhaseLog()">CLR</button>
+            </div>
+            <div class="transition-log" id="phaseLog">
+              <div class="t-entry"><span class="t-time">--:--:--</span><span class="t-0">Waiting for data...</span></div>
+            </div>
+            <!-- Sparkline for total weight -->
+            <div class="sparkline-wrap">
+              <div class="sparkline-label">TOTAL LOAD HISTORY (last 60s)</div>
+              <canvas class="sparkline" id="sparkCanvas"></canvas>
+            </div>
+          </div>
+
           <!-- Logs -->
           <div class="log-card">
             <div class="log-header">
@@ -1265,6 +1399,212 @@
     </div>
 
     <script>
+      // ── Short Leg ──────────────────────────────────────────
+      let shortLegIndex = null; // 1-4, or null
+
+      const SHORT_LEG_SVG_IDS = ['leg-fl','leg-fr','leg-rl','leg-rr'];
+
+      function toggleShortLeg(n) {
+        // toggle off if already selected
+        shortLegIndex = (shortLegIndex === n) ? null : n;
+        applyShortLegUI();
+      }
+
+      function applyShortLegUI() {
+        for (let i = 1; i <= 4; i++) {
+          const card   = document.getElementById('card-lc' + i);
+          const btn    = document.getElementById('sl-' + i);
+          const svgMark = document.getElementById('sl-svg-' + i);
+
+          const isShort = (shortLegIndex === i);
+
+          if (card) card.classList.toggle('is-short-leg', isShort);
+          if (btn)  btn.classList.toggle('active', isShort);
+
+          // SVG marker
+          if (svgMark) svgMark.style.opacity = isShort ? '1' : '0';
+        }
+
+        // update phase badge panel-sub text
+        const sub = document.querySelector('.panel-sub');
+        if (sub) {
+          const names = ['FL','FR','RL','RR'];
+          sub.textContent = shortLegIndex
+            ? 'TOP VIEW · SHORT LEG: ' + names[shortLegIndex - 1]
+            : 'TOP VIEW · REAL-TIME';
+        }
+      }
+
+      // ── Sparkline ──────────────────────────────────────────
+      const SPARK_MAX = 300; // samples
+      const sparkData = [];
+      let sparkMax = 1;
+
+      function sparkPush(val) {
+        sparkData.push(val);
+        if (sparkData.length > SPARK_MAX) sparkData.shift();
+        if (val > sparkMax) sparkMax = val;
+        drawSparkline();
+      }
+
+      function drawSparkline() {
+        const canvas = document.getElementById('sparkCanvas');
+        if (!canvas) return;
+        const dpr = window.devicePixelRatio || 1;
+        const W = canvas.offsetWidth, H = canvas.offsetHeight;
+        if (!W || !H) return;
+        canvas.width = W * dpr; canvas.height = H * dpr;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(dpr, dpr);
+        ctx.clearRect(0, 0, W, H);
+
+        if (sparkData.length < 2) return;
+
+        const peak = sparkMax || 1;
+        const step = W / (SPARK_MAX - 1);
+
+        // gradient fill
+        const grad = ctx.createLinearGradient(0, 0, 0, H);
+        grad.addColorStop(0, 'rgba(232,160,32,0.35)');
+        grad.addColorStop(1, 'rgba(232,160,32,0.02)');
+
+        ctx.beginPath();
+        ctx.moveTo(0, H);
+        sparkData.forEach((v, i) => {
+          const x = i * step;
+          const y = H - (v / peak) * (H - 4);
+          i === 0 ? ctx.lineTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.lineTo((sparkData.length - 1) * step, H);
+        ctx.closePath();
+        ctx.fillStyle = grad;
+        ctx.fill();
+
+        // line
+        ctx.beginPath();
+        sparkData.forEach((v, i) => {
+          const x = i * step;
+          const y = H - (v / peak) * (H - 4);
+          i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+        });
+        ctx.strokeStyle = '#e8a020';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+      }
+
+      // ── Phase tracking ─────────────────────────────────────
+      let lastPhase = -1;
+
+      function updatePhase(v1, v2, v3, v4, total) {
+        const badge = document.getElementById('phaseBadge');
+        const phText = document.getElementById('phaseText');
+        if (!badge || !phText) return;
+
+        const DEAD_THRESH = total * 0.05;
+        const activeLegs = [v1, v2, v3, v4].filter(v => v >= DEAD_THRESH).length;
+
+        let phase = 0;
+        if (total >= 50) phase = activeLegs >= 4 ? 4 : activeLegs;
+
+        badge.className = 'phase-badge phase-' + (phase === 0 ? 0 : phase <= 3 ? 3 : 4);
+
+        if (phase === 0) {
+          phText.textContent = 'NO LOAD';
+        } else if (phase < 4) {
+          phText.textContent = phase + '-POINT CONTACT';
+        } else {
+          phText.textContent = '4-POINT STABLE';
+        }
+
+        if (phase !== lastPhase && total >= 50) {
+          logPhaseTransition(lastPhase, phase, v1, v2, v3, v4, total);
+          lastPhase = phase;
+        }
+      }
+
+      function logPhaseTransition(from, to, v1, v2, v3, v4, total) {
+        const log = document.getElementById('phaseLog');
+        if (!log) return;
+        const time = new Date().toLocaleTimeString('en-GB', { hour12: false });
+        const pcts = [v1,v2,v3,v4].map(v => (total>0 ? (v/total*100).toFixed(0) : 0) + '%');
+        const cls = to >= 4 ? 't-4' : to > 0 ? 't-3' : 't-0';
+        const label = to >= 4 ? '4-PT STABLE' : to > 0 ? (to+'-PT CONTACT') : 'NO LOAD';
+        const detail = `FL:${pcts[0]} FR:${pcts[1]} RL:${pcts[2]} RR:${pcts[3]}`;
+        const entry = document.createElement('div');
+        entry.className = 't-entry';
+        entry.innerHTML = `<span class="t-time">${time}</span><span class="${cls}">${label} &nbsp;${detail}</span>`;
+        // prepend
+        log.insertBefore(entry, log.firstChild);
+        // keep max 20 entries
+        while (log.children.length > 20) log.removeChild(log.lastChild);
+      }
+
+      function clearPhaseLog() {
+        const log = document.getElementById('phaseLog');
+        if (log) log.innerHTML = '<div class="t-entry"><span class="t-time">--:--:--</span><span class="t-0">Cleared.</span></div>';
+        lastPhase = -1;
+      }
+
+      // ── Card state coloring ────────────────────────────────
+      const CARD_IDS = ['lc-fl','lc-fr','lc-rl','lc-rr'];
+      const STATES = ['state-dead','state-low','state-normal','state-high','state-over'];
+
+      function setCardState(cardEl, pct) {
+        STATES.forEach(s => cardEl.classList.remove(s));
+        if      (pct < 5)  cardEl.classList.add('state-dead');
+        else if (pct < 15) cardEl.classList.add('state-low');
+        else if (pct < 35) cardEl.classList.add('state-normal');
+        else if (pct < 45) cardEl.classList.add('state-high');
+        else               cardEl.classList.add('state-over');
+      }
+
+      function flashValue(id) {
+        const el = document.getElementById(id);
+        if (!el) return;
+        el.classList.remove('flashing');
+        void el.offsetWidth; // reflow
+        el.classList.add('flashing');
+        el.addEventListener('animationend', () => el.classList.remove('flashing'), { once: true });
+      }
+
+      // ── SVG leg glow ───────────────────────────────────────
+      const LEG_COLORS = {
+        'leg-fl': '56,189,248',
+        'leg-fr': '34,201,122',
+        'leg-rl': '232,160,32',
+        'leg-rr': '167,139,250'
+      };
+
+      function updateLegGlow(legId, pct) {
+        const g = document.getElementById(legId);
+        if (!g) return;
+        const outer = g.querySelector('circle:first-child');
+        const inner = g.querySelectorAll('circle')[1];
+        const col = LEG_COLORS[legId];
+        if (!outer || !col) return;
+
+        if (pct < 5) {
+          // dead leg: nearly invisible
+          outer.setAttribute('fill', 'rgba('+col+',0.03)');
+          outer.setAttribute('stroke', 'rgba('+col+',0.1)');
+          outer.setAttribute('stroke-width', '1');
+          if (inner) { inner.setAttribute('fill', 'rgba('+col+',0.04)'); inner.setAttribute('stroke', 'rgba('+col+',0.15)'); }
+        } else {
+          const intensity = Math.min(pct / 40, 1);
+          const fillOp   = (0.04 + intensity * 0.18).toFixed(2);
+          const strokeOp = (0.2  + intensity * 0.7 ).toFixed(2);
+          const glow     = (intensity * 12).toFixed(1);
+          outer.setAttribute('fill',   'rgba('+col+','+fillOp+')');
+          outer.setAttribute('stroke', 'rgba('+col+','+strokeOp+')');
+          outer.setAttribute('stroke-width', (1 + intensity * 2).toFixed(1));
+          outer.setAttribute('filter', pct > 10 ? 'drop-shadow(0 0 '+glow+'px rgba('+col+',0.6))' : '');
+          if (inner) {
+            inner.setAttribute('fill',   'rgba('+col+','+(fillOp*1.5)+')');
+            inner.setAttribute('stroke', 'rgba('+col+','+Math.min(strokeOp*1.2,1)+')');
+          }
+        }
+      }
+
       let device = null,
         server = null,
         service = null,
@@ -1314,25 +1654,45 @@
         }
       }
 
+      let prevVals = [0,0,0,0];
+
       function handleData(event) {
         try {
           const raw = new TextDecoder().decode(event.target.value);
           const data = JSON.parse(raw);
-          const v1 = sanitize(data.lc1),
-            v2 = sanitize(data.lc2),
-            v3 = sanitize(data.lc3),
-            v4 = sanitize(data.lc4);
-          let total = data.total !== undefined ? data.total : v1 + v2 + v3 + v4;
-          updateCard("lc1", v1);
-          updateCard("lc2", v2);
-          updateCard("lc3", v3);
-          updateCard("lc4", v4);
-          document.getElementById("totalWeight").textContent = total.toFixed(1);
+          const v1 = sanitize(data.lc1), v2 = sanitize(data.lc2),
+                v3 = sanitize(data.lc3), v4 = sanitize(data.lc4);
+          let total = data.total !== undefined ? data.total : v1+v2+v3+v4;
+
+          const vals = [v1,v2,v3,v4];
+          const ids  = ['lc1','lc2','lc3','lc4'];
+          const cardClasses = ['lc-fl','lc-fr','lc-rl','lc-rr'];
+          const legIds = ['leg-fl','leg-fr','leg-rl','leg-rr'];
+
+          vals.forEach((v, i) => {
+            // flash on meaningful change
+            if (Math.abs(v - prevVals[i]) > 2) flashValue(ids[i]);
+            updateCard(ids[i], v);
+
+            // card state
+            const card = document.querySelector('.lc-card.'+cardClasses[i]);
+            const pct = total > 0 ? (v / total * 100) : 0;
+            if (card) setCardState(card, pct);
+
+            // SVG glow
+            updateLegGlow(legIds[i], pct);
+          });
+          prevVals = vals;
+
+          document.getElementById('totalWeight').textContent = total.toFixed(1);
+
           updateDistribution(v1, v2, v3, v4, total);
           updateSVG(v1, v2, v3, v4, total);
           checkImbalance(v1, v2, v3, v4, total);
+          updatePhase(v1, v2, v3, v4, total);
+          sparkPush(total);
         } catch (error) {
-          console.error("Parse error:", error);
+          console.error('Parse error:', error);
         }
       }
 
@@ -1536,6 +1896,9 @@
       function clearLogs() {
         if (logsEl) logsEl.innerHTML = "";
       }
+
+      // Redraw sparkline on resize
+      window.addEventListener('resize', drawSparkline);
     </script>
   </body>
 </html>
