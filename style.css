@@ -645,3 +645,55 @@ body::before {
   .right-panel { grid-template-columns: 1fr; }
   #totalWeight { font-size: 2.2rem; }
 }
+
+/* =========================
+   TEXT COLORS
+========================= */
+
+.text-cyan {
+  color: var(--cyan);
+}
+
+.text-green {
+  color: var(--green);
+}
+
+.text-amber {
+  color: var(--amber);
+}
+
+.text-purple {
+  color: var(--purple);
+}
+
+/* =========================
+   BACKGROUND COLORS
+========================= */
+
+.bg-cyan {
+  background: var(--cyan);
+}
+
+.bg-green {
+  background: var(--green);
+}
+
+.bg-amber {
+  background: var(--amber);
+}
+
+.bg-purple {
+  background: var(--purple);
+}
+
+/* =========================
+   SEMI TRANSPARENT
+========================= */
+
+.bg-cyan-soft {
+  background: rgba(56, 189, 248, 0.6);
+}
+
+.bg-amber-soft {
+  background: rgba(232, 160, 32, 0.6);
+}
